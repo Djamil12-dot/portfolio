@@ -129,6 +129,28 @@ a.button {
 
   <section id="projects">
     <h2>Compétences</h2>
+    <div class="card">
+  <h2>Compétences</h2>
+  <ul id="skills-list"></ul>
+</div>
+
+<script>
+fetch('skills.csv')
+  .then(response => response.text())
+  .then(data => {
+    const rows = data.split('\n').slice(1);
+
+    rows.forEach(row => {
+      const [name, level] = row.split(',');
+
+      if(name && level){
+        const li = document.createElement('li');
+        li.textContent = name + " - " + level;
+        document.getElementById('skills-list').appendChild(li);
+      }
+    });
+  });
+</script>
 
 ```
 <div class="card">
@@ -145,6 +167,11 @@ a.button {
   <h3>Expérience</h3>
   <p>support utilisateurs et gestion d'incidents, helpdesk.</p>
 </div>
+
+<div class="card">
+  <h3>Veille technologique</h3>
+  <p>Développer son sens critique (Google Alert),Feedly,Pocket,Mention,Google News  </p>
+</div>
 ```
 
   </section>
@@ -158,6 +185,7 @@ a.button {
       <span>protocole : TCP,UDP,FTP,STP,ARP,TLS</span>
     </div>
   </section>
+
 
   <section id="contact">
     <h2>Contact</h2>
