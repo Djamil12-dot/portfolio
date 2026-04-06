@@ -118,11 +118,19 @@
   </section>
 
   <section id="competences">
-    <h2>Matrice de Compétences (CSV)</h2>
-    <div class="card">
-      <div id="grid-container"></div>
-    </div>
-  </section>
+  <h2>Matrice de Compétences</h2>
+  <div class="card" style="text-align: center; padding: 40px;">
+    <p style="margin-bottom: 20px;">Retrouvez le détail complet de mes compétences techniques, certifiées et en cours d'acquisition sur mon tableau de suivi dynamique :</p>
+    
+    <a href="https://docs.google.com/spreadsheets/d/1udFtHUFLxwrV4zZpKjNB-VsfdEU5v1X2/edit?gid=1831979334#gid=1831979334" 
+       target="_blank" 
+       class="button" 
+       style="background-color: #217346; color: white; display: inline-flex; align-items: center; gap: 10px;">
+       <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg" width="20" alt="">
+       Consulter ma Matrice de Compétences (Google Sheets)
+    </a>
+  </div>
+</section>
 
   <section id="projects">
     <h2>Projets & Réalisations Techniques</h2>
@@ -175,48 +183,7 @@
     <p>© 2026 - ABOUDOULHAMIDI Djamil - Réalisé avec Passion</p>
   </footer>
 
- <script>
-  async function initGrid() {
-    const container = document.getElementById("grid-container");
-    try {
-      const response = await fetch('./skills.csv?v=' + new Date().getTime());
-      if (!response.ok) throw new Error('Fichier introuvable');
-      
-      // On récupère les données brutes (blob)
-      const blob = await response.blob();
-      // On force la lecture en UTF-8 pour récupérer les é, à, è...
-      const rawData = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsText(blob, 'UTF-8');
-      });
-
-      const rows = rawData.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
-      const separator = rows[0].includes(';') ? ';' : ',';
-      
-      const tableData = rows.map(line => 
-        line.split(separator).map(cell => cell.replace(/^["']|["']$/g, '').trim())
-      );
-
-      new gridjs.Grid({
-        columns: tableData[0],
-        data: tableData.slice(1),
-        search: true,
-        sort: true,
-        pagination: { limit: 10 },
-        language: {
-          search: { placeholder: '🔍 Filtrer...' },
-          noRecordsFound: 'Aucune donnée trouvée',
-          pagination: { previous: 'Précédent', next: 'Suivant' }
-        }
-      }).render(container);
-
-    } catch (e) {
-      container.innerHTML = `<p style="color:#38bdf8;">Erreur : ${e.message}</p>`;
-    }
-  }
-  window.onload = initGrid;
-</script>
+ 
 
 </body>
 </html>
