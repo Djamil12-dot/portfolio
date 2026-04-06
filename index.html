@@ -179,24 +179,25 @@
   async function initGrid() {
     const container = document.getElementById("grid-container");
     try {
-      // Le '?v=' évite que le navigateur n'affiche une ancienne version cachée
       const response = await fetch('./skills.csv?v=' + new Date().getTime());
       if (!response.ok) throw new Error('Fichier introuvable');
       
-      const rawData = await response.text();
+      // On récupère les données brutes (blob)
+      const blob = await response.blob();
+      // On force la lecture en UTF-8 pour récupérer les é, à, è...
+      const rawData = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsText(blob, 'UTF-8');
+      });
 
-      // Découpage des lignes et nettoyage
       const rows = rawData.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
-      if (rows.length === 0) throw new Error('Le fichier est vide');
-
-      // Détection du séparateur (point-virgule ou virgule)
       const separator = rows[0].includes(';') ? ';' : ',';
       
       const tableData = rows.map(line => 
         line.split(separator).map(cell => cell.replace(/^["']|["']$/g, '').trim())
       );
 
-      // Rendu du tableau
       new gridjs.Grid({
         columns: tableData[0],
         data: tableData.slice(1),
@@ -211,7 +212,6 @@
       }).render(container);
 
     } catch (e) {
-      console.error(e);
       container.innerHTML = `<p style="color:#38bdf8;">Erreur : ${e.message}</p>`;
     }
   }
