@@ -179,57 +179,42 @@
   async function initGrid() {
     const container = document.getElementById("grid-container");
     try {
-      // 1. On récupère le fichier
-      const response = await fetch('./skills.csv');
-      if (!response.ok) throw new Error('Fichier CSV introuvable');
+      // Le '?v=' évite que le navigateur n'affiche une ancienne version cachée
+      const response = await fetch('./skills.csv?v=' + new Date().getTime());
+      if (!response.ok) throw new Error('Fichier introuvable');
       
       const rawData = await response.text();
-      
-      // 2. Nettoyage radical des lignes
-      // On sépare par ligne, on enlève les espaces vides, et on filtre les lignes vides
-      const rows = rawData.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
-      
-      if (rows.length < 1) throw new Error('Le fichier CSV est vide');
 
-      // 3. Détection du séparateur
+      // Découpage des lignes et nettoyage
+      const rows = rawData.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
+      if (rows.length === 0) throw new Error('Le fichier est vide');
+
+      // Détection du séparateur (point-virgule ou virgule)
       const separator = rows[0].includes(';') ? ';' : ',';
       
-      // 4. Extraction propre des données
-      const tableData = rows.map(line => {
-        return line.split(separator).map(cell => cell.replace(/^["']|["']$/g, '').trim());
-      });
+      const tableData = rows.map(line => 
+        line.split(separator).map(cell => cell.replace(/^["']|["']$/g, '').trim())
+      );
 
-      // 5. On vérifie qu'on a bien des colonnes
-      const headers = tableData[0];
-      const body = tableData.slice(1);
-
-      if (!headers || headers.length === 0 || headers[0] === "") {
-        throw new Error('Colonnes invalides. Vérifiez le format du CSV.');
-      }
-
-      // 6. Rendu Grid.js
+      // Rendu du tableau
       new gridjs.Grid({
-        columns: headers.map(h => ({ name: h })), // On force le nomage des colonnes
-        data: body,
+        columns: tableData[0],
+        data: tableData.slice(1),
         search: true,
         sort: true,
         pagination: { limit: 10 },
         language: {
           search: { placeholder: '🔍 Filtrer...' },
           noRecordsFound: 'Aucune donnée trouvée',
-          pagination: { previous: 'Préc.', next: 'Suiv.' }
+          pagination: { previous: 'Précédent', next: 'Suivant' }
         }
       }).render(container);
 
     } catch (e) {
-      console.error("Erreur détaillée:", e);
-      container.innerHTML = `<p style="color:#38bdf8; padding: 20px;">
-        <strong>Erreur :</strong> ${e.message}<br>
-        <em>Vérifiez que skills.csv est bien à la racine du dépôt GitHub.</em></p>`;
+      console.error(e);
+      container.innerHTML = `<p style="color:#38bdf8;">Erreur : ${e.message}</p>`;
     }
   }
-
-  // Petit délai pour s'assurer que la bibliothèque est chargée
   window.onload = initGrid;
 </script>
 
